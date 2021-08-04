@@ -3,7 +3,7 @@
 """Creates the Example and GPT classes for a user to interface with the OpenAI API."""
 
 import openai
-openai.api_key =  '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'
+openai.api_key =  enter your key here
 
 def set_openai_key(key):
     """Sets OpenAI key."""
