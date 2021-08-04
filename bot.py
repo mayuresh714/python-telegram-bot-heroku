@@ -1,6 +1,7 @@
 import logging
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import os
+import process as pc
 PORT = int(os.environ.get('PORT', 5000))
 
 # Enable logging
@@ -22,7 +23,8 @@ def help(update, context):
 
 def echo(update, context):
     """Echo the user message."""
-    update.message.reply_text(update.message.text)
+    pm = pc.transcribe().sms_reply(update.message.text)
+    update.message.reply_text(pm)
 
 def error(update, context):
     """Log Errors caused by Updates."""
