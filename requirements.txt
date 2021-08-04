@@ -1,1 +1,4 @@
+deep-translator==1.5.0
+google-trans-new==1.1.9
 python-telegram-bot==12.7
+youtube-transcript-api==0.4.1
