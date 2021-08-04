@@ -1,45 +1,88 @@
-from youtube_transcript_api import YouTubeTranscriptApi
-from google_trans_new import google_translator
-from deep_translator import GoogleTranslator
+#gpt.py
+
+"""Creates the Example and GPT classes for a user to interface with the OpenAI API."""
+
+import openai
+openai.api_key =  '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'
+
+def set_openai_key(key):
+    """Sets OpenAI key."""
+    openai.api_key = key
+
+class Example():
+    """Stores an input, output pair and formats it to prime the model."""
+
+    def __init__(self, inp, out):
+        self.input = inp
+        self.output = out
+
+    def get_input(self):
+        """Returns the input of the example."""
+        return self.input
+
+    def get_output(self):
+        """Returns the intended output of the example."""
+        return self.output
+
+    def format(self):
+        """Formats the input, output pair."""
+        return f"input: {self.input}\noutput: {self.output}\n"
 
 
+class GPT:
+    """The main class for a user to interface with the OpenAI API.
+    A user can add examples and set parameters of the API request."""
 
-class transcribe:
-  def __init__(self):
-      pass
+    def __init__(self, engine='davinci',
+                 temperature=0.5,
+                 max_tokens=100):
+        self.examples = []
+        self.engine = engine
+        self.temperature = temperature
+        self.max_tokens = max_tokens
 
-  def hinglish(self,sent, dest="mr"):### src means lang code of sender and dest means lang code for receivers...
-      to_translate =  sent
-      translated = GoogleTranslator(source='auto', target= dest).translate(to_translate)
-      return translated
+    def add_example(self, ex):
+        """Adds an example to the object. Example must be an instance
+        of the Example class."""
+        assert isinstance(ex, Example), "Please create an Example object."
+        self.examples.append(ex.format())
 
-  def fetch_id(self,url = 'https://youtu.be/kuFpDqFWSQA'):
-      return url[-11:]
-      
-  def video_to_text(self,id = 'kuFpDqFWSQA' ):
-      #transcript_list = YouTubeTranscriptApi.list_transcripts(id)
-      #print(transcript_list)
-      #return YouTubeTranscriptApi.get_transcripts(id, languages=['en'])
-      return  YouTubeTranscriptApi.get_transcript(id)
+    def get_prime_text(self):
+        """Formats all examples to prime the model."""
+        return '\n'.join(self.examples) + '\n'
 
-  def dict_to_string(self,s):
-      sam = ''
-      for i in s:
-        sam += i['text']+" "
-      return sam
+    def get_engine(self):
+        """Returns the engine specified for the API."""
+        return self.engine
 
-  def para_translate(self,data,dest):
-    s = ""
-    sent = data.split('.')
-    #print(sent)
-    for i in sent:
-        s += obj.hinglish(i,dest)
-    return s
+    def get_temperature(self):
+        """Returns the temperature specified for the API."""
+        return self.temperature
 
-  def sms_reply(self,link,lang = 'en'):
-      id  = self.fetch_id(link)
-      dictform = self.video_to_text(id)
-      #return dictform
-      text = self.dict_to_string(dictform)
-      #return self.para_translate(text,dest = lang)
-      return text
+    def get_max_tokens(self):
+        """Returns the max tokens specified for the API."""
+        return self.max_tokens
+
+    def craft_query(self, prompt):
+        """Creates the query for the API request."""
+        return self.get_prime_text() + "input: " + prompt + "\n"
+
+    def submit_request(self, prompt):
+        """Calls the OpenAI API with the specified parameters."""
+        response = openai.Completion.create(engine=self.get_engine(),
+                                            prompt=self.craft_query(prompt),
+                                            max_tokens=self.get_max_tokens(),
+                                            temperature=self.get_temperature(),
+                                            top_p=1,
+                                            n=1,
+                                            stream=False,
+                                            stop="\ninput:")
+        return response
+
+    def get_top_reply(self, prompt):
+        """Obtains the best result as returned by the API."""
+        response = self.submit_request(prompt)
+        return response['choices'][0]['text']
+
+
+ 
