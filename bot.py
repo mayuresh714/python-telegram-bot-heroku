@@ -23,7 +23,7 @@ def help(update, context):
 
 def echo(update, context):
     """Echo the user message."""
-    pm = pc.transcribe().sms_reply(update.message.text)
+    pm = pc.transcribe().sms_reply(update.message.text)[:500]
     update.message.reply_text(pm)
 
 def error(update, context):
